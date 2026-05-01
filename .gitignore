@@ -1,0 +1,12 @@
+# Godot auto-generated cache — never commit
+.godot/
+
+# Export builds
+exports/
+builds/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db

@@ -1,0 +1,26 @@
+name: Godot export
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Export game
+        uses: abarichello/godot-ci@master
+        with:
+          godot-version: 4.3
+          export-name: BoardGameGirl
+          export-path: ./exports
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-builds
+          path: exports/
