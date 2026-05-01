@@ -14,6 +14,3 @@ Godot 4.x — exact version locked after first editor open.
 ## Export
 Export presets in `export_presets.cfg`. Requires Godot export templates.
 Platforms: Windows, macOS, Linux.
-
-## Dialogue policy
-All dialogue is hand-written. See data/dialogue/. Do not use AI to generate dialogue.
