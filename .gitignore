@@ -1,6 +1,9 @@
 # Godot auto-generated cache — never commit
 .godot/
 
+# Claude Code local settings (machine-specific)
+.claude/
+
 # Export builds
 exports/
 builds/
