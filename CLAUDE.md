@@ -49,6 +49,8 @@ This game must pass Steam's AI content disclosure with NO on all questions. All 
 **Do:** boilerplate scenes, state machines, signal wiring, save systems, Steam SDK integration  
 **Don't:** write dialogue, implement win conditions, name the game, generate art
 
+After creating or substantially modifying .gd or .tscn files, always run /pr-review-toolkit:review-pr before finishing.
+
 - Prefer composition over inheritance except for BaseGame
 - Always use signals for cross-node communication
 - Keep rule logic in scripts/game_logic/, not embedded in scenes

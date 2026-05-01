@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git status --porcelain 2>/dev/null | grep -qE '\\.(gd|tscn)$' && echo '{\"systemMessage\": \"GDScript/scene files changed — run /pr-review-toolkit:review-pr before committing.\"}' || true",
+            "shell": "bash"
+          }
+        ]
+      }
+    ]
+  }
+}
