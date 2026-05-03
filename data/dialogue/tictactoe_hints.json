@@ -1,0 +1,20 @@
+{
+  "tier_1": {
+    "time": ["Come onnnnnnn."],
+    "wrong_moves": ["That doesn't look like anything!"]
+  },
+  "tier_2": {
+    "cold": ["Do you need, like, a coffee?"],
+    "warm": ["Are you just playing with me??"],
+    "same_mistake_twice": ["AGAIN?!?!"]
+  },
+  "tier_3": {
+    "offer": ["Can I make your move?", "Want me to help?"],
+    "declined": ["Fiiiiiine"]
+  },
+  "tier_4": {
+    "exit_early_right": ["Yeah, you got it!"],
+    "exit_early_wrong": ["No we were so close!"],
+    "completed": ["Yay - we did it!"]
+  }
+}

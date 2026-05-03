@@ -21,8 +21,13 @@ const CHILD_MARK  := "O"
 # ---------------------------------------------------------------------------
 
 # Emitted every time any mark is placed — player or child.
-# Connect HintManager to this signal to observe all moves.
+# HintManager connects to this to track timing and move counts.
 signal move_made(cell_index: int, player_type: int)
+
+# Emitted by check_win_condition() once you implement it.
+# category: "wrong_move", "warm", "correct", or "game_complete"
+# ReactionManager and HintManager both connect to this.
+signal move_evaluated(cell_index: int, category: String)
 
 # ---------------------------------------------------------------------------
 # State
@@ -46,6 +51,9 @@ var game_active: bool = true
 # Holds a direct reference to each Button node, addressed by cell index.
 var _cells: Array[Button] = []
 
+# Index of the most recently placed cell — available inside check_win_condition().
+var _last_placed_cell: int = -1
+
 # ---------------------------------------------------------------------------
 # Lifecycle
 # ---------------------------------------------------------------------------
@@ -61,6 +69,10 @@ func _ready() -> void:
 		var cell := grid.get_node("Cell%d" % i) as Button
 		assert(cell != null, "Missing Cell%d in GameBoard — check TicTacToe.tscn" % i)
 		_cells.append(cell)
+
+	# Wire the reaction and hint systems to this game instance.
+	ReactionManager.connect_game(self)
+	HintManager.connect_game(self)
 
 # ---------------------------------------------------------------------------
 # Player input — _on_cell_pressed is connected via signal binds in the scene
@@ -118,6 +130,7 @@ func _child_take_turn() -> void:
 
 func _place_mark(cell_index: int, player_type: int) -> void:
 	board[cell_index] = player_type
+	_last_placed_cell = cell_index
 	_cells[cell_index].text = PLAYER_MARK if player_type == PLAYER else CHILD_MARK
 	_cells[cell_index].disabled = true  # prevents the cell from being clicked again
 	move_made.emit(cell_index, player_type)
@@ -136,6 +149,14 @@ func check_win_condition() -> bool:
 	#   3 | 4 | 5
 	#   ---------
 	#   6 | 7 | 8
+	#
+	# When you evaluate the player's last move, emit move_evaluated so the
+	# reaction and hint systems can respond. Use _last_placed_cell for the index.
+	# Examples:
+	#   move_evaluated.emit(_last_placed_cell, "wrong_move")
+	#   move_evaluated.emit(_last_placed_cell, "warm")
+	#   move_evaluated.emit(_last_placed_cell, "correct")
+	#   move_evaluated.emit(_last_placed_cell, "game_complete")
 	#
 	# Return true to end the game, false to keep playing.
 	return false

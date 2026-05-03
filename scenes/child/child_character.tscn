@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://bchildcharact"]
+
+[ext_resource type="Script" path="res://scripts/child/child_character.gd" id="1_child"]
+
+; Root fills the viewport so the child character can be positioned anywhere.
+[node name="ChildCharacter" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_child")
+
+; AnimationPlayer — add animations here when art is ready.
+; The script looks for: idle, react_wrong, react_warm, react_correct,
+; react_celebrate, react_hint. Falls back to idle silently if not found.
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+; DialogueLabel — anchored to the bottom centre of the screen.
+; Style this however you like; the script sets .text directly.
+[node name="DialogueLabel" type="Label" parent="."]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -80.0
+grow_vertical = 0
+horizontal_alignment = 1
