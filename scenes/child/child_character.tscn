@@ -10,6 +10,20 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_child")
 
+; Character sprite — texture set at runtime from assets/art/girl.png when available.
+[node name="CharacterSprite" type="TextureRect" parent="."]
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -150.0
+offset_right = -20.0
+offset_bottom = 150.0
+grow_horizontal = 0
+expand_mode = 3
+
 ; AnimationPlayer — add animations here when art is ready.
 ; The script looks for: idle, react_wrong, react_warm, react_correct,
 ; react_celebrate, react_hint. Falls back to idle silently if not found.

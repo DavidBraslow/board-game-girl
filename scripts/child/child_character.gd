@@ -13,14 +13,19 @@
 
 extends Control
 
+const GIRL_TEXTURE_PATH := "res://assets/art/girl.png"
+
 @onready var _animation_player: AnimationPlayer = $AnimationPlayer
 @onready var _dialogue_label: Label = $DialogueLabel
 @onready var _guidance_panel: HBoxContainer = $GuidanceOfferPanel
+@onready var _character_sprite: TextureRect = $CharacterSprite
 
 func _ready() -> void:
 	ReactionManager.reaction_triggered.connect(_on_reaction_triggered)
 	HintManager.hint_triggered.connect(_on_hint_triggered)
 	HintManager.guidance_offer_made.connect(_on_guidance_offer_made)
+	if ResourceLoader.exists(GIRL_TEXTURE_PATH):
+		_character_sprite.texture = load(GIRL_TEXTURE_PATH)
 
 # ---------------------------------------------------------------------------
 # Reaction handler

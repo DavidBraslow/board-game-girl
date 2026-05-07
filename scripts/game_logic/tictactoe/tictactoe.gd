@@ -14,6 +14,9 @@ const CHILD_MARK  := "O"
 const MOUTH_CELLS: Array[int] = [6, 7, 8]
 const WRONG_MOVE_PAUSE := 2.5
 
+const PLAYER_TEXTURE_PATH := "res://assets/art/x_mark.png"
+const CHILD_TEXTURE_PATH  := "res://assets/art/o_mark.png"
+
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
@@ -130,6 +133,7 @@ func _reset_board() -> void:
 	_last_placed_cell = -1
 	for cell in _cells:
 		cell.text = ""
+		cell.icon = null
 		cell.disabled = false
 	current_turn = PLAYER
 	game_active = true
@@ -137,8 +141,13 @@ func _reset_board() -> void:
 func _place_mark(cell_index: int, player_type: int) -> void:
 	board[cell_index] = player_type
 	_last_placed_cell = cell_index
-	_cells[cell_index].text = PLAYER_MARK if player_type == PLAYER else CHILD_MARK
-	_cells[cell_index].disabled = true  # prevents the cell from being clicked again
+	var texture_path := PLAYER_TEXTURE_PATH if player_type == PLAYER else CHILD_TEXTURE_PATH
+	if ResourceLoader.exists(texture_path):
+		_cells[cell_index].icon = load(texture_path)
+		_cells[cell_index].text = ""
+	else:
+		_cells[cell_index].text = PLAYER_MARK if player_type == PLAYER else CHILD_MARK
+	_cells[cell_index].disabled = true
 	move_made.emit(cell_index, player_type)
 
 # ---------------------------------------------------------------------------
