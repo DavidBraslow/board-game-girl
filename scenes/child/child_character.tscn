@@ -3,11 +3,13 @@
 [ext_resource type="Script" path="res://scripts/child/child_character.gd" id="1_child"]
 
 ; Root fills the viewport so the child character can be positioned anywhere.
+; MOUSE_FILTER_IGNORE (2) so clicks pass through to the game board below.
 [node name="ChildCharacter" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_child")
 
 ; Character sprite — texture set at runtime from assets/art/girl.png when available.
@@ -23,6 +25,7 @@ offset_right = -20.0
 offset_bottom = 150.0
 grow_horizontal = 0
 expand_mode = 3
+mouse_filter = 2
 
 ; AnimationPlayer — add animations here when art is ready.
 ; The script looks for: idle, react_wrong, react_warm, react_correct,
@@ -42,6 +45,7 @@ grow_vertical = 0
 horizontal_alignment = 1
 
 ; Accept/Decline buttons — shown only when the tier-3 guidance offer fires.
+; Panel itself ignores mouse; only the buttons inside consume clicks.
 [node name="GuidanceOfferPanel" type="HBoxContainer" parent="."]
 visible = false
 layout_mode = 1
@@ -53,6 +57,7 @@ offset_left = -100.0
 offset_top = -40.0
 offset_right = 100.0
 grow_vertical = 0
+mouse_filter = 2
 
 [node name="AcceptButton" type="Button" parent="GuidanceOfferPanel"]
 text = "Accept"
