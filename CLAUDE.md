@@ -34,7 +34,7 @@ A cozy puzzle game built in Godot 4 (working title: Board Game Girl). The player
 ## Architecture
 - Each game level is a self-contained scene inheriting from BaseGame, in scenes/games/<gamename>/
 - HintManager is a standalone autoload state machine; the hint system is always separate from game logic — connected via signals only
-- Win condition logic is always left as an empty stub for David to implement — never fill it in
+- Win condition logic is authored by David. Workflow: David describes the rule in plain English → Claude implements it in code → David reviews and approves before committing. Never invent or assume win conditions.
 - Dialogue is loaded from JSON at runtime — never hardcoded
 - SaveSystem uses Godot FileAccess + JSON
 
@@ -46,8 +46,8 @@ This game must pass Steam's AI content disclosure with NO on all questions. All 
 
 ## What Claude Code should and shouldn't do
 
-**Do:** boilerplate scenes, state machines, signal wiring, save systems, Steam SDK integration  
-**Don't:** write dialogue, implement win conditions, name the game, generate art
+**Do:** boilerplate scenes, state machines, signal wiring, save systems, Steam SDK integration, implementing win conditions from David's plain-English description  
+**Don't:** write dialogue, invent win conditions, name the game, generate art
 
 After creating or substantially modifying .gd or .tscn files, always run /pr-review-toolkit:review-pr before finishing.
 

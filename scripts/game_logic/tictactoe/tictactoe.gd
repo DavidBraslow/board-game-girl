@@ -134,23 +134,25 @@ func _on_back_pressed() -> void:
 # ---------------------------------------------------------------------------
 
 func check_win_condition() -> bool:
-	# TODO: implement win/loss/draw detection here.
-	#
-	# board[i] is EMPTY (0), PLAYER (1), or CHILD (2).
-	# Cell layout:
-	#   0 | 1 | 2
-	#   ---------
-	#   3 | 4 | 5
-	#   ---------
-	#   6 | 7 | 8
-	#
-	# When you evaluate the player's last move, emit move_evaluated so the
-	# reaction and hint systems can respond. Use _last_placed_cell for the index.
-	# Examples:
-	#   move_evaluated.emit(_last_placed_cell, "wrong_move")
-	#   move_evaluated.emit(_last_placed_cell, "warm")
-	#   move_evaluated.emit(_last_placed_cell, "correct")
-	#   move_evaluated.emit(_last_placed_cell, "game_complete")
-	#
-	# Return true to end the game, false to keep playing.
+	# Win: bored smiley face.
+	#   O eyes in upper corners (0, 2) + X mouth across bottom row (6, 7, 8).
+	var face_complete: bool = (
+		board[0] == CHILD  and
+		board[2] == CHILD  and
+		board[6] == PLAYER and
+		board[7] == PLAYER and
+		board[8] == PLAYER
+	)
+
+	if face_complete:
+		move_evaluated.emit(_last_placed_cell, "game_complete")
+		return true
+
+	# Evaluate player moves only — the child's rule is hers to know.
+	if _last_placed_cell >= 0 and board[_last_placed_cell] == PLAYER:
+		if _last_placed_cell in [6, 7, 8]:
+			move_evaluated.emit(_last_placed_cell, "correct")
+		else:
+			move_evaluated.emit(_last_placed_cell, "wrong_move")
+
 	return false
