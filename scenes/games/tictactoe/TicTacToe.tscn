@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://b3k7xymtictac"]
+[gd_scene load_steps=3 format=3 uid="uid://b3k7xymtictac"]
 
 [ext_resource type="Script" path="res://scripts/game_logic/tictactoe/tictactoe.gd" id="1_q7d4p"]
+[ext_resource type="PackedScene" path="res://scenes/child/child_character.tscn" id="2_child"]
 
 ; Root node fills the full viewport. Script attached here.
 [node name="TicTacToeGame" type="Control"]
@@ -53,7 +54,20 @@ custom_minimum_size = Vector2(100, 100)
 [node name="Cell8" type="Button" parent="GameBoard"]
 custom_minimum_size = Vector2(100, 100)
 
-; Each cell button passes its own index to _on_cell_pressed via the binds array.
+; Back to menu button — top-left corner.
+[node name="BackToMenuButton" type="Button" parent="."]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_right = 120.0
+offset_bottom = 40.0
+text = "Menu"
+
+; Child character overlay — reactions and hints display here.
+[node name="ChildCharacter" parent="." instance=ExtResource("2_child")]
+
 [connection signal="pressed" from="GameBoard/Cell0" to="." method="_on_cell_pressed" binds=[0]]
 [connection signal="pressed" from="GameBoard/Cell1" to="." method="_on_cell_pressed" binds=[1]]
 [connection signal="pressed" from="GameBoard/Cell2" to="." method="_on_cell_pressed" binds=[2]]
@@ -63,3 +77,4 @@ custom_minimum_size = Vector2(100, 100)
 [connection signal="pressed" from="GameBoard/Cell6" to="." method="_on_cell_pressed" binds=[6]]
 [connection signal="pressed" from="GameBoard/Cell7" to="." method="_on_cell_pressed" binds=[7]]
 [connection signal="pressed" from="GameBoard/Cell8" to="." method="_on_cell_pressed" binds=[8]]
+[connection signal="pressed" from="BackToMenuButton" to="." method="_on_back_pressed"]

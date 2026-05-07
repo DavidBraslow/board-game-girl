@@ -33,6 +33,8 @@ var _cells: Array[Button] = []
 # Index of the most recently placed cell — available inside check_win_condition().
 var _last_placed_cell: int = -1
 
+var _child_turn_timer: Timer
+
 # ---------------------------------------------------------------------------
 # Lifecycle
 # ---------------------------------------------------------------------------
@@ -49,6 +51,12 @@ func _ready() -> void:
 		var cell := grid.get_node("Cell%d" % i) as Button
 		assert(cell != null, "Missing Cell%d in GameBoard — check TicTacToe.tscn" % i)
 		_cells.append(cell)
+
+	_child_turn_timer = Timer.new()
+	_child_turn_timer.wait_time = 0.8
+	_child_turn_timer.one_shot = true
+	_child_turn_timer.timeout.connect(_child_take_turn)
+	add_child(_child_turn_timer)
 
 # ---------------------------------------------------------------------------
 # Player input — _on_cell_pressed is connected via signal binds in the scene
@@ -67,9 +75,7 @@ func _on_cell_pressed(cell_index: int) -> void:
 		return
 
 	current_turn = CHILD
-	# call_deferred waits until the next frame so the player's mark renders
-	# before the child responds.
-	call_deferred("_child_take_turn")
+	_child_turn_timer.start()
 
 # ---------------------------------------------------------------------------
 # Child character AI
@@ -110,6 +116,18 @@ func _place_mark(cell_index: int, player_type: int) -> void:
 	_cells[cell_index].text = PLAYER_MARK if player_type == PLAYER else CHILD_MARK
 	_cells[cell_index].disabled = true  # prevents the cell from being clicked again
 	move_made.emit(cell_index, player_type)
+
+# ---------------------------------------------------------------------------
+# Navigation
+# ---------------------------------------------------------------------------
+
+func _on_back_pressed() -> void:
+	game_active = false
+	_child_turn_timer.stop()
+	HintManager.reset_session()
+	var err := get_tree().change_scene_to_file("res://scenes/ui/MainMenu.tscn")
+	if err != OK:
+		push_error("TicTacToe: failed to load MainMenu (%d)" % err)
 
 # ---------------------------------------------------------------------------
 # Win condition — implement this yourself

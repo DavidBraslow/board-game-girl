@@ -15,6 +15,7 @@ extends Control
 
 @onready var _animation_player: AnimationPlayer = $AnimationPlayer
 @onready var _dialogue_label: Label = $DialogueLabel
+@onready var _guidance_panel: HBoxContainer = $GuidanceOfferPanel
 
 func _ready() -> void:
 	ReactionManager.reaction_triggered.connect(_on_reaction_triggered)
@@ -42,10 +43,15 @@ func _on_hint_triggered(text: String, _tier: int, _variant: String) -> void:
 # ---------------------------------------------------------------------------
 
 func _on_guidance_offer_made() -> void:
-	# TODO: show an accept/decline UI prompt here.
-	# Call HintManager.accept_guidance() or HintManager.decline_guidance()
-	# based on the player's choice.
-	pass
+	_guidance_panel.visible = true
+
+func _on_accept_pressed() -> void:
+	_guidance_panel.visible = false
+	HintManager.accept_guidance()
+
+func _on_decline_pressed() -> void:
+	_guidance_panel.visible = false
+	HintManager.decline_guidance()
 
 # ---------------------------------------------------------------------------
 # Helpers

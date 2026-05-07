@@ -210,6 +210,18 @@ func complete_guidance() -> void:
 # Helpers
 # ---------------------------------------------------------------------------
 
+# Call when leaving a game entirely (e.g. back to menu) to prevent state
+# from the previous session bleeding into the next game.
+func reset_session() -> void:
+	_inactivity_timer.stop()
+	_session_timer.stop()
+	_current_tier = 0
+	_wrong_moves_this_tier = 0
+	_last_wrong_cell = -1
+	_same_mistake_count = 0
+	_last_move_category = ""
+	_guidance_active = false
+
 func _reset() -> void:
 	_current_tier = 0
 	_wrong_moves_this_tier = 0
