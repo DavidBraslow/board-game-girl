@@ -1,9 +1,4 @@
-# Controller for the Tic-Tac-Toe game level.
-# Attach this script to the root node of TicTacToe.tscn.
-#
-# TODO: When BaseGame is created, change "extends Control" to "extends BaseGame".
-
-extends Control
+extends BaseGame
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -15,19 +10,6 @@ const CHILD  := 2  # played by the child character
 
 const PLAYER_MARK := "X"
 const CHILD_MARK  := "O"
-
-# ---------------------------------------------------------------------------
-# Signals — names use past tense per project convention
-# ---------------------------------------------------------------------------
-
-# Emitted every time any mark is placed — player or child.
-# HintManager connects to this to track timing and move counts.
-signal move_made(cell_index: int, player_type: int)
-
-# Emitted by check_win_condition() once you implement it.
-# category: "wrong_move", "warm", "correct", or "game_complete"
-# ReactionManager and HintManager both connect to this.
-signal move_evaluated(cell_index: int, category: String)
 
 # ---------------------------------------------------------------------------
 # State
@@ -45,9 +27,6 @@ var board: Array[int] = []
 # Whose turn it is right now.
 var current_turn: int = PLAYER
 
-# Becomes false once the game ends; blocks further input.
-var game_active: bool = true
-
 # Holds a direct reference to each Button node, addressed by cell index.
 var _cells: Array[Button] = []
 
@@ -59,6 +38,7 @@ var _last_placed_cell: int = -1
 # ---------------------------------------------------------------------------
 
 func _ready() -> void:
+	super._ready()
 	board.resize(9)
 	board.fill(EMPTY)
 
@@ -69,10 +49,6 @@ func _ready() -> void:
 		var cell := grid.get_node("Cell%d" % i) as Button
 		assert(cell != null, "Missing Cell%d in GameBoard — check TicTacToe.tscn" % i)
 		_cells.append(cell)
-
-	# Wire the reaction and hint systems to this game instance.
-	ReactionManager.connect_game(self)
-	HintManager.connect_game(self)
 
 # ---------------------------------------------------------------------------
 # Player input — _on_cell_pressed is connected via signal binds in the scene
