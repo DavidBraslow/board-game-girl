@@ -72,6 +72,10 @@ func _ready() -> void:
 	_reset_timer.timeout.connect(_reset_board)
 	add_child(_reset_timer)
 
+	get_tree().create_timer(0.5).timeout.connect(
+		func(): ReactionManager.trigger("intro")
+	)
+
 # ---------------------------------------------------------------------------
 # Player input — _on_cell_pressed is connected via signal binds in the scene
 # ---------------------------------------------------------------------------
