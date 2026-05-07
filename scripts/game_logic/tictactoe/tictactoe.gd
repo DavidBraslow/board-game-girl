@@ -12,6 +12,7 @@ const PLAYER_MARK := "X"
 const CHILD_MARK  := "O"
 
 const MOUTH_CELLS: Array[int] = [6, 7, 8]
+const EYE_CELLS:   Array[int] = [0, 2]
 const WRONG_MOVE_PAUSE := 2.5
 
 const PLAYER_TEXTURE_PATH := "res://assets/art/x_mark.png"
@@ -100,10 +101,20 @@ func _on_cell_pressed(cell_index: int) -> void:
 # ---------------------------------------------------------------------------
 
 func _child_take_turn() -> void:
-	# Guard against the deferred call arriving after the game has already ended.
 	if not game_active:
 		return
 
+	# Secret rule: always try to place O in the eye corners first.
+	for cell in EYE_CELLS:
+		if board[cell] == EMPTY:
+			_place_mark(cell, CHILD)
+			if check_win_condition():
+				game_active = false
+			else:
+				current_turn = PLAYER
+			return
+
+	# Both eye cells taken — fall back to a random empty cell.
 	var empty_cells: Array[int] = []
 	for i in range(9):
 		if board[i] == EMPTY:
@@ -113,8 +124,6 @@ func _child_take_turn() -> void:
 		game_active = false
 		return
 
-	# Placeholder: random empty cell.
-	# Replace this with the child's secret rule logic once you've defined it.
 	var chosen: int = empty_cells[randi() % empty_cells.size()]
 	_place_mark(chosen, CHILD)
 
