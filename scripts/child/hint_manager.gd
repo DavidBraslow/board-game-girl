@@ -1,19 +1,4 @@
-# HintManager — autoload singleton.
-# 4-tier progressive hint system for the child character.
-#
-# Tier 1: fires after 3 wrong moves OR 60 s of player inactivity
-# Tier 2: fires after 3 more wrong moves, or the same wrong move twice
-# Tier 3: fires after 5 more failed moves OR 3 min total elapsed —
-#          presents an offer to take over (UI handles accept/decline)
-# Tier 4: activates on acceptance — guidance state, exposes exit/complete methods
-#
-# Any correct move resets the hint system back to tier 1.
-
 extends Node
-
-# ---------------------------------------------------------------------------
-# Thresholds
-# ---------------------------------------------------------------------------
 
 const TIER_1_WRONG_MOVES     := 3
 const TIER_1_INACTIVITY_SECS := 60.0
@@ -21,27 +6,12 @@ const TIER_2_WRONG_MOVES     := 3
 const TIER_3_FAILED_MOVES    := 5
 const TIER_3_TOTAL_SECS      := 180.0
 
-# ---------------------------------------------------------------------------
-# Signals
-# ---------------------------------------------------------------------------
-
-# A hint line is ready to display.
 signal hint_triggered(text: String, tier: int, variant: String)
-
-# Tier 3 fired — the UI should show an accept/decline prompt,
-# then call accept_guidance() or decline_guidance().
 signal guidance_offer_made
-
-# Player accepted; tier 4 is now active.
 signal guidance_started
-
-# Guidance ended. reason: "exit_right", "exit_wrong", or "completed"
 signal guidance_ended(reason: String)
 
-# ---------------------------------------------------------------------------
-# State
-# ---------------------------------------------------------------------------
-
+var _generic_hints: Dictionary = {}
 var _hints: Dictionary = {}
 var _current_tier: int = 0
 var _wrong_moves_this_tier: int = 0
@@ -53,25 +23,48 @@ var _guidance_active: bool = false
 var _inactivity_timer: Timer
 var _session_timer: Timer
 
-# ---------------------------------------------------------------------------
-# Lifecycle
-# ---------------------------------------------------------------------------
-
 func _ready() -> void:
-	_load_hints()
+	_generic_hints = _load_json("res://data/dialogue/generic_hints.json")
 	_setup_timers()
 
-func _load_hints() -> void:
-	var file := FileAccess.open("res://data/dialogue/tictactoe_hints.json", FileAccess.READ)
-	if not file:
-		push_error("HintManager: could not open tictactoe_hints.json")
+func connect_game(game: Node) -> void:
+	if game.has_signal("move_made"):
+		game.move_made.connect(_on_move_made)
+	if game.has_signal("move_evaluated"):
+		game.move_evaluated.connect(_on_move_evaluated)
+	_build_hints(game.get("level_id") if game.get("level_id") else "")
+	_inactivity_timer.start()
+	_session_timer.start()
+
+func _build_hints(p_level_id: String) -> void:
+	_hints = _generic_hints.duplicate(true)
+	if p_level_id.is_empty():
 		return
+	var path := "res://data/dialogue/%s_hints.json" % p_level_id
+	if ResourceLoader.exists(path):
+		_merge_into(_hints, _load_json(path))
+
+func _merge_into(base: Dictionary, overlay: Dictionary) -> void:
+	for key in overlay:
+		if base.has(key):
+			if base[key] is Dictionary and overlay[key] is Dictionary:
+				_merge_into(base[key], overlay[key])
+			elif base[key] is Array and overlay[key] is Array:
+				base[key] = base[key] + overlay[key]
+		else:
+			base[key] = overlay[key]
+
+func _load_json(path: String) -> Dictionary:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if not file:
+		push_error("HintManager: could not open %s" % path)
+		return {}
 	var result: Variant = JSON.parse_string(file.get_as_text())
 	file.close()
 	if result is Dictionary:
-		_hints = result
-	else:
-		push_error("HintManager: failed to parse tictactoe_hints.json")
+		return result
+	push_error("HintManager: failed to parse %s" % path)
+	return {}
 
 func _setup_timers() -> void:
 	_inactivity_timer = Timer.new()
@@ -86,25 +79,7 @@ func _setup_timers() -> void:
 	_session_timer.timeout.connect(_on_session_timeout)
 	add_child(_session_timer)
 
-# ---------------------------------------------------------------------------
-# Game connection
-# ---------------------------------------------------------------------------
-
-# Call this from a game scene's _ready() to start tracking.
-func connect_game(game: Node) -> void:
-	if game.has_signal("move_made"):
-		game.move_made.connect(_on_move_made)
-	if game.has_signal("move_evaluated"):
-		game.move_evaluated.connect(_on_move_evaluated)
-	_inactivity_timer.start()
-	_session_timer.start()
-
-# ---------------------------------------------------------------------------
-# Signal handlers
-# ---------------------------------------------------------------------------
-
 func _on_move_made(_cell_index: int, player_type: int) -> void:
-	# Reset inactivity timer whenever the player places a mark (player_type == 1).
 	if player_type == 1:
 		_inactivity_timer.start()
 
@@ -115,19 +90,13 @@ func _on_move_evaluated(cell_index: int, category: String) -> void:
 		_reset()
 		return
 
-	# Both "wrong_move" and "warm" count as failed for tier tracking purposes.
 	if category in ["wrong_move", "warm"]:
 		_handle_failed_move(cell_index)
-
-# ---------------------------------------------------------------------------
-# Tier progression
-# ---------------------------------------------------------------------------
 
 func _handle_failed_move(cell_index: int) -> void:
 	if _guidance_active:
 		return
 
-	# Track whether the player is repeating the exact same cell.
 	if cell_index == _last_wrong_cell:
 		_same_mistake_count += 1
 	else:
@@ -136,7 +105,6 @@ func _handle_failed_move(cell_index: int) -> void:
 
 	_wrong_moves_this_tier += 1
 
-	# Same cell played wrong twice always triggers tier 2 (once past tier 1).
 	if _same_mistake_count >= 2 and _current_tier >= 1:
 		_fire_tier_2("same_mistake_twice")
 		return
@@ -147,7 +115,6 @@ func _handle_failed_move(cell_index: int) -> void:
 				_fire_tier_1("wrong_moves")
 		1:
 			if _wrong_moves_this_tier >= TIER_2_WRONG_MOVES:
-				# Use "warm" variant if the last evaluated move was close.
 				var variant := "warm" if _last_move_category == "warm" else "cold"
 				_fire_tier_2(variant)
 		2:
@@ -179,39 +146,24 @@ func _on_session_timeout() -> void:
 	if _current_tier < 3 and not _guidance_active:
 		_fire_tier_3()
 
-# ---------------------------------------------------------------------------
-# Tier 4: Guidance
-# ---------------------------------------------------------------------------
-
-# Call when the player accepts the guidance offer.
 func accept_guidance() -> void:
 	_guidance_active = true
 	guidance_started.emit()
 
-# Call when the player declines the guidance offer.
 func decline_guidance() -> void:
 	_emit_hint(["tier_3", "declined"], 3, "declined")
 
-# Call if the player exits guidance mid-way.
-# was_correct: true if their very next independent move was correct.
 func exit_guidance(was_correct: bool) -> void:
 	_guidance_active = false
 	var variant := "exit_early_right" if was_correct else "exit_early_wrong"
 	_emit_hint(["tier_4", variant], 4, variant)
 	guidance_ended.emit("exit_right" if was_correct else "exit_wrong")
 
-# Call when the guided walkthrough finishes successfully.
 func complete_guidance() -> void:
 	_guidance_active = false
 	_emit_hint(["tier_4", "completed"], 4, "completed")
 	guidance_ended.emit("completed")
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-# Call when leaving a game entirely (e.g. back to menu) to prevent state
-# from the previous session bleeding into the next game.
 func reset_session() -> void:
 	_inactivity_timer.stop()
 	_session_timer.stop()
@@ -234,7 +186,6 @@ func _emit_hint(path: Array, tier: int, variant: String) -> void:
 	if text:
 		hint_triggered.emit(text, tier, variant)
 
-# Walk a nested Dictionary path and return a random item from the final Array.
 func _get_line(path: Array) -> String:
 	var data: Variant = _hints
 	for key: String in path:

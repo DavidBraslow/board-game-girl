@@ -5,6 +5,7 @@ signal move_made(cell_index: int, player_type: int)
 signal move_evaluated(cell_index: int, category: String)
 
 var game_active: bool = true
+var level_id: String = ""
 
 func _ready() -> void:
 	ReactionManager.connect_game(self)

@@ -5,6 +5,10 @@ const LEVELS := {
 		"scene": "res://scenes/games/tictactoe/TicTacToe.tscn",
 		"button": "VBoxContainer/GamesContainer/TicTacToeButton",
 	},
+	"tictactoe_x": {
+		"scene": "res://scenes/games/tictactoe/TicTacToeX.tscn",
+		"button": "VBoxContainer/GamesContainer/TicTacToeXButton",
+	},
 }
 
 func _ready() -> void:

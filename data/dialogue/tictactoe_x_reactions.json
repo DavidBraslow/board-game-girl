@@ -1,0 +1,11 @@
+{
+  "intro": [
+    "Make an X!!"
+  ],
+  "correct": [
+    "Lookin' X-ey!"
+  ],
+  "wrong_move": [
+    "No, not THAT kind of X!"
+  ]
+}
