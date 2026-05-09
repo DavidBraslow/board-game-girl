@@ -3,8 +3,7 @@
     "time": ["Come onnnnnnn."]
   },
   "tier_2": {
-    "cold": ["Do you need, like, a coffee?"],
-    "warm": ["Are you just playing with me??"],
+    "cold": ["Do you need, like, a coffee?", "Are you just playing with me??"],
     "same_mistake_twice": ["AGAIN?!?!"]
   },
   "tier_3": {
