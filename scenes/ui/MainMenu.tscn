@@ -27,11 +27,11 @@ text = "Board Game Girl"
 
 [node name="GamesContainer" type="VBoxContainer" parent="VBoxContainer"]
 
-[node name="TicTacToeButton" type="Button" parent="VBoxContainer/GamesContainer"]
+[node name="TicTacToeXButton" type="Button" parent="VBoxContainer/GamesContainer"]
 text = "Tic-Tac-Toe"
 
-[node name="TicTacToeXButton" type="Button" parent="VBoxContainer/GamesContainer"]
+[node name="TicTacToeButton" type="Button" parent="VBoxContainer/GamesContainer"]
 text = "Tic-Tac-Toe 2"
 
-[connection signal="pressed" from="VBoxContainer/GamesContainer/TicTacToeButton" to="." method="_on_game_button_pressed" binds=["tictactoe"]]
 [connection signal="pressed" from="VBoxContainer/GamesContainer/TicTacToeXButton" to="." method="_on_game_button_pressed" binds=["tictactoe_x"]]
+[connection signal="pressed" from="VBoxContainer/GamesContainer/TicTacToeButton" to="." method="_on_game_button_pressed" binds=["tictactoe"]]

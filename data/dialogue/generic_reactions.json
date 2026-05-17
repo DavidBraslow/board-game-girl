@@ -1,13 +1,16 @@
 {
   "wrong_move": [
-    "Huh, that's weird",
-    "Sure about that?",
     "What?! No no no",
     "Uggggggghhhhhhhh",
     "WHAT ARE YOU DOING??? ARE YOU EVEN PAYING ATTENTION?!?"
   ],
-  "warm": [
-    "Uhhhhh... Almost..."
+  "cool": [
+    "Uhhhhh... Almost...",
+    "Sure about that?",
+    "Huh, that's weird"
+  ],
+  "near_win": [
+    "Almost there!!"
   ],
   "correct": [
     "Nice!",

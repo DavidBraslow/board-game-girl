@@ -28,7 +28,7 @@ expand_mode = 3
 mouse_filter = 2
 
 ; AnimationPlayer — add animations here when art is ready.
-; The script looks for: idle, react_wrong, react_warm, react_correct,
+; The script looks for: idle, react_wrong, react_cool, react_correct,
 ; react_celebrate, react_hint. Falls back to idle silently if not found.
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
@@ -44,7 +44,7 @@ offset_top = -80.0
 grow_vertical = 0
 horizontal_alignment = 1
 
-; Accept/Decline buttons — shown only when the tier-3 guidance offer fires.
+; Accept/Decline buttons — shown for the tier-3 guidance offer and each per-move offer during guided play.
 ; Panel itself ignores mouse; only the buttons inside consume clicks.
 [node name="GuidanceOfferPanel" type="HBoxContainer" parent="."]
 visible = false

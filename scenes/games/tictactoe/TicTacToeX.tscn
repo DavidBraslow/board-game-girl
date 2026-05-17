@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://tictactoex"]
+[gd_scene format=3 uid="uid://tictactoex"]
 
 [ext_resource type="Script" path="res://scripts/game_logic/tictactoe/tictactoe_x.gd" id="1_tttx"]
 [ext_resource type="PackedScene" path="res://scenes/child/child_character.tscn" id="2_child"]

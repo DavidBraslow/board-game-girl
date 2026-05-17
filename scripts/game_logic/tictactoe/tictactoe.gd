@@ -29,7 +29,7 @@ func check_win_condition() -> bool:
 
 	if _last_placed_cell >= 0 and board[_last_placed_cell] == PLAYER:
 		if _last_placed_cell in MOUTH_CELLS:
-			move_evaluated.emit(_last_placed_cell, "correct")
+			move_evaluated.emit(_last_placed_cell, _get_correct_category())
 		else:
 			move_evaluated.emit(_last_placed_cell, "wrong_move")
 

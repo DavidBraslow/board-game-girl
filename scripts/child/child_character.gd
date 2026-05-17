@@ -6,12 +6,15 @@
 # Animation names the script looks for:
 #   "idle"            — default state
 #   "react_wrong"     — wrong move
-#   "react_warm"      — close but not right
+#   "react_cool"      — close but not right
 #   "react_correct"   — correct move
 #   "react_celebrate" — game complete / puzzle solved
 #   "react_hint"      — any hint fires
 
 extends Control
+
+signal guided_move_accepted
+signal guided_move_declined
 
 const GIRL_TEXTURE_PATH := "res://assets/art/girl.png"
 
@@ -20,10 +23,15 @@ const GIRL_TEXTURE_PATH := "res://assets/art/girl.png"
 @onready var _guidance_panel: HBoxContainer = $GuidanceOfferPanel
 @onready var _character_sprite: TextureRect = $CharacterSprite
 
+var _in_guided_play: bool = false
+
 func _ready() -> void:
 	ReactionManager.reaction_triggered.connect(_on_reaction_triggered)
 	HintManager.hint_triggered.connect(_on_hint_triggered)
 	HintManager.guidance_offer_made.connect(_on_guidance_offer_made)
+	HintManager.guided_move_offer_made.connect(_on_guidance_offer_made)
+	HintManager.guidance_started.connect(func(): _in_guided_play = true)
+	HintManager.guidance_ended.connect(func(_r: String): _in_guided_play = false)
 	if ResourceLoader.exists(GIRL_TEXTURE_PATH):
 		_character_sprite.texture = load(GIRL_TEXTURE_PATH)
 
@@ -44,7 +52,7 @@ func _on_hint_triggered(text: String, _tier: int, _variant: String) -> void:
 	_play_animation("hint")
 
 # ---------------------------------------------------------------------------
-# Guidance offer
+# Guidance offer (initial tier-3 offer and per-move offers during guided play)
 # ---------------------------------------------------------------------------
 
 func _on_guidance_offer_made() -> void:
@@ -52,11 +60,17 @@ func _on_guidance_offer_made() -> void:
 
 func _on_accept_pressed() -> void:
 	_guidance_panel.visible = false
-	HintManager.accept_guidance()
+	if _in_guided_play:
+		guided_move_accepted.emit()
+	else:
+		HintManager.accept_guidance()
 
 func _on_decline_pressed() -> void:
 	_guidance_panel.visible = false
-	HintManager.decline_guidance()
+	if _in_guided_play:
+		guided_move_declined.emit()
+	else:
+		HintManager.decline_guidance()
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -68,7 +82,7 @@ func _show_dialogue(text: String) -> void:
 func _play_animation(category: String) -> void:
 	var anim_map: Dictionary = {
 		"wrong_move":    "react_wrong",
-		"warm":          "react_warm",
+		"cool":          "react_cool",
 		"correct":       "react_correct",
 		"game_complete": "react_celebrate",
 		"hint":          "react_hint",

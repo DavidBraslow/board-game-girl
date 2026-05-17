@@ -3,6 +3,15 @@ extends TicTacToeBase
 const DIAGONAL_CELLS: Array[int] = [0, 2, 4, 6, 8]
 const EDGE_CELLS:     Array[int] = [1, 3, 5, 7]
 
+func _get_correct_category() -> String:
+	var player_cells := _get_player_cells()
+	var correct_count := player_cells.filter(func(c): return board[c] == PLAYER).size()
+	if correct_count >= player_cells.size() - 1:
+		return "near_win"
+	if correct_count >= 3:
+		return "correct_late"
+	return "correct"
+
 func _get_level_id() -> String:
 	return "tictactoe_x"
 
@@ -27,7 +36,7 @@ func check_win_condition() -> bool:
 
 	if _last_placed_cell >= 0 and board[_last_placed_cell] == PLAYER:
 		if _last_placed_cell in DIAGONAL_CELLS:
-			move_evaluated.emit(_last_placed_cell, "correct")
+			move_evaluated.emit(_last_placed_cell, _get_correct_category())
 		else:
 			move_evaluated.emit(_last_placed_cell, "wrong_move")
 

@@ -3,17 +3,20 @@ extends Node
 const TIER_1_WRONG_MOVES     := 3
 const TIER_1_INACTIVITY_SECS := 60.0
 const TIER_2_WRONG_MOVES     := 3
-const TIER_3_FAILED_MOVES    := 5
 const TIER_3_TOTAL_SECS      := 180.0
+const GUIDANCE_WRONG_MOVES       := 5
+const GUIDANCE_RETRY_WRONG_MOVES := 3
 
 signal hint_triggered(text: String, tier: int, variant: String)
 signal guidance_offer_made
 signal guidance_started
 signal guidance_ended(reason: String)
+signal guided_move_offer_made
 
 var _generic_hints: Dictionary = {}
 var _hints: Dictionary = {}
 var _current_tier: int = 0
+var _total_wrong_moves: int = 0
 var _wrong_moves_this_tier: int = 0
 var _last_wrong_cell: int = -1
 var _same_mistake_count: int = 0
@@ -90,7 +93,7 @@ func _on_move_evaluated(cell_index: int, category: String) -> void:
 		_reset()
 		return
 
-	if category in ["wrong_move", "warm"]:
+	if category in ["wrong_move", "cool"]:
 		_handle_failed_move(cell_index)
 
 func _handle_failed_move(cell_index: int) -> void:
@@ -103,7 +106,12 @@ func _handle_failed_move(cell_index: int) -> void:
 		_same_mistake_count = 1
 		_last_wrong_cell = cell_index
 
+	_total_wrong_moves += 1
 	_wrong_moves_this_tier += 1
+
+	if _current_tier < 3 and _total_wrong_moves >= GUIDANCE_WRONG_MOVES:
+		_fire_tier_3()
+		return
 
 	if _same_mistake_count >= 2 and _current_tier >= 1:
 		_fire_tier_2("same_mistake_twice")
@@ -115,11 +123,8 @@ func _handle_failed_move(cell_index: int) -> void:
 				_fire_tier_1("wrong_moves")
 		1:
 			if _wrong_moves_this_tier >= TIER_2_WRONG_MOVES:
-				var variant := "warm" if _last_move_category == "warm" else "cold"
+				var variant := "cool" if _last_move_category == "cool" else "cold"
 				_fire_tier_2(variant)
-		2:
-			if _wrong_moves_this_tier >= TIER_3_FAILED_MOVES:
-				_fire_tier_3()
 
 func _fire_tier_1(variant: String) -> void:
 	_current_tier = 1
@@ -146,6 +151,10 @@ func _on_session_timeout() -> void:
 	if _current_tier < 3 and not _guidance_active:
 		_fire_tier_3()
 
+func make_guided_move_offer() -> void:
+	_emit_hint(["guided_move", "offer"], 4, "guided_move_offer")
+	guided_move_offer_made.emit()
+
 func accept_guidance() -> void:
 	_guidance_active = true
 	guidance_started.emit()
@@ -155,6 +164,11 @@ func decline_guidance() -> void:
 
 func exit_guidance(was_correct: bool) -> void:
 	_guidance_active = false
+	_current_tier = 0
+	_total_wrong_moves = GUIDANCE_WRONG_MOVES - GUIDANCE_RETRY_WRONG_MOVES
+	_wrong_moves_this_tier = 0
+	_last_wrong_cell = -1
+	_same_mistake_count = 0
 	var variant := "exit_early_right" if was_correct else "exit_early_wrong"
 	_emit_hint(["tier_4", variant], 4, variant)
 	guidance_ended.emit("exit_right" if was_correct else "exit_wrong")
@@ -168,6 +182,7 @@ func reset_session() -> void:
 	_inactivity_timer.stop()
 	_session_timer.stop()
 	_current_tier = 0
+	_total_wrong_moves = 0
 	_wrong_moves_this_tier = 0
 	_last_wrong_cell = -1
 	_same_mistake_count = 0
@@ -176,6 +191,7 @@ func reset_session() -> void:
 
 func _reset() -> void:
 	_current_tier = 0
+	_total_wrong_moves = 0
 	_wrong_moves_this_tier = 0
 	_last_wrong_cell = -1
 	_same_mistake_count = 0

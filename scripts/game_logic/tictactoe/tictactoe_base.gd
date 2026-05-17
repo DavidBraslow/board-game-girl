@@ -17,6 +17,7 @@ var current_turn: int = PLAYER
 var _cells: Array[Button] = []
 var _last_placed_cell: int = -1
 var _guidance_active: bool = false
+var _pending_guided_cell: int = -1
 var _child_turn_timer: Timer
 var _reset_timer: Timer
 var _guidance_timer: Timer
@@ -53,6 +54,8 @@ func _ready() -> void:
 
 	HintManager.guidance_started.connect(_on_guidance_started)
 	HintManager.guidance_ended.connect(_on_guidance_ended)
+	$ChildCharacter.guided_move_accepted.connect(_on_guided_move_accepted)
+	$ChildCharacter.guided_move_declined.connect(_on_guided_move_declined)
 
 	get_tree().create_timer(0.5).timeout.connect(
 		func(): ReactionManager.trigger("intro")
@@ -125,24 +128,48 @@ func _make_guided_player_move() -> void:
 	if available.is_empty():
 		return
 
-	var chosen: int = available[randi() % available.size()]
-	_place_mark(chosen, PLAYER)
+	_pending_guided_cell = available[randi() % available.size()]
+	HintManager.make_guided_move_offer()
 
+func _place_first_guided_move() -> void:
+	if not game_active or not _guidance_active:
+		return
+	var available: Array[int] = []
+	for cell in _get_player_cells():
+		if board[cell] == EMPTY:
+			available.append(cell)
+	if available.is_empty():
+		return
+	_place_guided_move(available[randi() % available.size()])
+
+func _on_guided_move_accepted() -> void:
+	if not game_active or not _guidance_active or _pending_guided_cell < 0:
+		return
+	var cell := _pending_guided_cell
+	_pending_guided_cell = -1
+	_place_guided_move(cell)
+
+func _place_guided_move(cell: int) -> void:
+	_place_mark(cell, PLAYER)
 	if check_win_condition():
 		game_active = false
 		HintManager.complete_guidance()
 		return
-
 	current_turn = CHILD
 	_child_turn_timer.start()
+
+func _on_guided_move_declined() -> void:
+	_pending_guided_cell = -1
+	HintManager.exit_guidance(false)
 
 func _on_guidance_started() -> void:
 	_guidance_active = true
 	if game_active and current_turn == PLAYER:
-		_guidance_timer.start()
+		get_tree().create_timer(GUIDANCE_MOVE_PAUSE).timeout.connect(_place_first_guided_move)
 
 func _on_guidance_ended(_reason: String) -> void:
 	_guidance_active = false
+	_pending_guided_cell = -1
 	_guidance_timer.stop()
 
 func _reset_board() -> void:
@@ -176,6 +203,15 @@ func _on_back_pressed() -> void:
 	var err := get_tree().change_scene_to_file("res://scenes/ui/MainMenu.tscn")
 	if err != OK:
 		push_error("TicTacToeBase: failed to load MainMenu (%d)" % err)
+
+# --- Shared helpers ---
+
+func _get_correct_category() -> String:
+	var player_cells := _get_player_cells()
+	var correct_count := player_cells.filter(func(c): return board[c] == PLAYER).size()
+	if correct_count >= player_cells.size() - 1:
+		return "near_win"
+	return "correct"
 
 # --- Virtual methods — override in each level ---
 
