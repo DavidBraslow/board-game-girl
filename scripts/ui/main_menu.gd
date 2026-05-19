@@ -1,25 +1,6 @@
 extends Control
 
-const LEVELS := {
-	"tictactoe": {
-		"scene": "res://scenes/games/tictactoe/TicTacToe.tscn",
-		"button": "VBoxContainer/GamesContainer/TicTacToeButton",
-	},
-	"tictactoe_x": {
-		"scene": "res://scenes/games/tictactoe/TicTacToeX.tscn",
-		"button": "VBoxContainer/GamesContainer/TicTacToeXButton",
-	},
-}
-
-func _ready() -> void:
-	_refresh_buttons()
-
-func _refresh_buttons() -> void:
-	for level_name: String in LEVELS:
-		var info: Dictionary = LEVELS[level_name]
-		var button := get_node(info["button"]) as Button
-		if button:
-			button.disabled = not SaveSystem.is_level_unlocked(level_name)
-
-func _on_game_button_pressed(level_name: String) -> void:
-	get_tree().change_scene_to_file(LEVELS[level_name]["scene"])
+func _on_play_pressed() -> void:
+	var err := get_tree().change_scene_to_file("res://scenes/ui/GameRoom.tscn")
+	if err != OK:
+		push_error("MainMenu: failed to load GameRoom.tscn (err %d)" % err)

@@ -89,12 +89,19 @@ func _on_move_made(_cell_index: int, player_type: int) -> void:
 func _on_move_evaluated(cell_index: int, category: String) -> void:
 	_last_move_category = category
 
-	if category in ["correct", "game_complete"]:
+	if category == "game_complete":
 		_reset()
+		return
+
+	if category in ["correct", "near_win", "correct_late"]:
+		_reset_tier()
 		return
 
 	if category in ["wrong_move", "cool"]:
 		_handle_failed_move(cell_index)
+		return
+
+	push_warning("HintManager: unrecognized move category '%s'" % category)
 
 func _handle_failed_move(cell_index: int) -> void:
 	if _guidance_active:
@@ -190,8 +197,11 @@ func reset_session() -> void:
 	_guidance_active = false
 
 func _reset() -> void:
-	_current_tier = 0
 	_total_wrong_moves = 0
+	_reset_tier()
+
+func _reset_tier() -> void:
+	_current_tier = 0
 	_wrong_moves_this_tier = 0
 	_last_wrong_cell = -1
 	_same_mistake_count = 0

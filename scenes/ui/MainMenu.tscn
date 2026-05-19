@@ -16,22 +16,16 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = -100.0
+offset_top = -60.0
 offset_right = 150.0
-offset_bottom = 100.0
+offset_bottom = 60.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 text = "Board Game Girl"
 
-[node name="GamesContainer" type="VBoxContainer" parent="VBoxContainer"]
+[node name="PlayButton" type="Button" parent="VBoxContainer"]
+text = "Play"
 
-[node name="TicTacToeXButton" type="Button" parent="VBoxContainer/GamesContainer"]
-text = "Tic-Tac-Toe"
-
-[node name="TicTacToeButton" type="Button" parent="VBoxContainer/GamesContainer"]
-text = "Tic-Tac-Toe 2"
-
-[connection signal="pressed" from="VBoxContainer/GamesContainer/TicTacToeXButton" to="." method="_on_game_button_pressed" binds=["tictactoe_x"]]
-[connection signal="pressed" from="VBoxContainer/GamesContainer/TicTacToeButton" to="." method="_on_game_button_pressed" binds=["tictactoe"]]
+[connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_play_pressed"]

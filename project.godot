@@ -21,7 +21,6 @@ config/icon="res://assets/art/icon.svg"
 
 [autoload]
 
-GameState="*res://scripts/autoloads/game_state.gd"
 ReactionManager="*res://scripts/child/reaction_manager.gd"
 HintManager="*res://scripts/child/hint_manager.gd"
 AudioManager="*res://scripts/autoloads/audio_manager.gd"

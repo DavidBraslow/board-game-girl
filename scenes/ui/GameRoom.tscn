@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://gameroom"]
+
+[ext_resource type="Script" path="res://scripts/ui/game_room.gd" id="1_gameroom"]
+[ext_resource type="PackedScene" path="res://scenes/child/child_character.tscn" id="2_child"]
+
+[node name="GameRoom" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gameroom")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.95, 0.9, 0.8, 1)
+
+[node name="GamesContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -180.0
+offset_bottom = -20.0
+grow_vertical = 0
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="TicTacToeX" type="Button" parent="GamesContainer"]
+custom_minimum_size = Vector2(160, 140)
+text = "Tic-Tac-Toe X"
+
+[node name="TicTacToeMeh" type="Button" parent="GamesContainer"]
+custom_minimum_size = Vector2(160, 140)
+text = "Tic-Tac-Toe Face"
+
+[node name="ChildCharacter" parent="." instance=ExtResource("2_child")]
+
+[connection signal="pressed" from="GamesContainer/TicTacToeX" to="." method="_on_tile_pressed" binds=["tictactoe_x"]]
+[connection signal="pressed" from="GamesContainer/TicTacToeMeh" to="." method="_on_tile_pressed" binds=["tictactoe_meh"]]

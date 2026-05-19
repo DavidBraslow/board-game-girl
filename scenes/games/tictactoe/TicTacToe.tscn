@@ -63,7 +63,7 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 offset_right = 120.0
 offset_bottom = 40.0
-text = "Menu"
+text = "Back"
 
 ; Child character overlay — reactions and hints display here.
 [node name="ChildCharacter" parent="." instance=ExtResource("2_child")]

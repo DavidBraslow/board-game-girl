@@ -71,6 +71,7 @@ func _on_cell_pressed(cell_index: int) -> void:
 
 	if check_win_condition():
 		game_active = false
+		_handle_win()
 		return
 
 	if cell_index not in _get_player_cells():
@@ -153,6 +154,7 @@ func _place_guided_move(cell: int) -> void:
 	_place_mark(cell, PLAYER)
 	if check_win_condition():
 		game_active = false
+		_handle_win()
 		HintManager.complete_guidance()
 		return
 	current_turn = CHILD
@@ -200,9 +202,17 @@ func _on_back_pressed() -> void:
 	_reset_timer.stop()
 	_guidance_timer.stop()
 	HintManager.reset_session()
-	var err := get_tree().change_scene_to_file("res://scenes/ui/MainMenu.tscn")
+	var err := get_tree().change_scene_to_file("res://scenes/ui/GameRoom.tscn")
 	if err != OK:
-		push_error("TicTacToeBase: failed to load MainMenu (%d)" % err)
+		push_error("TicTacToeBase: failed to load GameRoom (%d)" % err)
+
+func _handle_win() -> void:
+	if level_id.is_empty():
+		push_error("TicTacToeBase: level_id is empty — did you override _get_level_id()?")
+		return
+	SaveSystem.mark_level_complete(level_id)
+	if level_id == "tictactoe_x":
+		SaveSystem.mark_level_unlocked("tictactoe_meh")
 
 # --- Shared helpers ---
 

@@ -60,5 +60,5 @@ func _get_array(key: String) -> Array:
 func _default_data() -> Dictionary:
 	return {
 		"completed": [],
-		"unlocked": ["tictactoe", "tictactoe_x"],
+		"unlocked": ["tictactoe_x"],
 	}
